@@ -14,16 +14,10 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
-from pages import views
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('index/', views.index),
-    path('hello/<name>/', views.hello),
-    # 두 수를 입력 받아 곱한 결과를 보여주는 페이지
-    path('times/<int:num1>/<num2>/', views.times),
-    path('dtl/', views.dtl),
-    # Is it your birthday? 오늘이 생일이면 '예', 아니면 '아니오'
-    path('bday/', views.bday),
+    path('pages/', include('pages.urls')),
+    path('tools/', include('tools.urls')),
 ]
