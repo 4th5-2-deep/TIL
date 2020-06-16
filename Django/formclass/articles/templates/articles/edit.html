@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<h1>Article Edit</h1>
+
+<form action="" method="POST">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    <div>
+        <!-- 1. label -->
+        {{ form.title.label }}
+        <!-- 2. input -->
+        {{ form.title }}
+        <!-- 3. errors -->
+        {{ form.title.errors }}
+    </div>
+    <div>
+        <!-- 1. label -->
+        {{ form.content.label }}
+        <!-- 2. input -->
+        {{ form.content }}
+        <!-- 3. errors -->
+        {{ form.content.errors }}
+    </div>
+    
+    <input type="submit">
+</form>
+
+{% endblock %}

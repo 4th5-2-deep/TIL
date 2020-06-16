@@ -11,5 +11,11 @@
 <p>수정 시각: {{ article.updated_at }}</p>
 
 <a href="{% url 'articles:index' %}">Index</a>
+<a href="{% url 'articles:edit' article.pk %}">Edit</a>
+
+<form action="{% url 'articles:delete' article.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="Delete">
+</form>
 
 {% endblock %}
