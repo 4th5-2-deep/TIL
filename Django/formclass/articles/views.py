@@ -16,7 +16,8 @@ def new(request):
         # 1. 요청에 실려온 data 꺼내오기
         # title = request.POST.get('title')
         # content = request.POST.get('content')
-        form = ArticleForm(request.POST)
+        # image = request.FILES.get('image')
+        form = ArticleForm(request.POST, request.FILES)
         
         # 2-1. data 유효성 검사
         if form.is_valid():

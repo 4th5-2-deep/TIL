@@ -7,6 +7,13 @@
 <p>PK: {{ article.pk }}</p>
 <p>제목: {{ article.title }}</p>
 <p>내용: {{ article.content }}</p>
+
+{% if article.image %}
+<p>
+    이미지: <img src="{{ article.image.url }}" alt="{{ article.image }}">
+</p>
+{% endif %}
+
 <p>생성 시각: {{ article.created_at }}</p>
 <p>수정 시각: {{ article.updated_at }}</p>
 
