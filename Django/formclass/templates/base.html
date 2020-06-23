@@ -6,6 +6,20 @@
     <title>Document</title>
 </head>
 <body>
+    <nav>
+        {% if user.is_authenticated %}
+        <span>{{ user.username }}</span>
+        <form action="{% url 'accounts:logout' %}" method="POST">
+            {% csrf_token %}
+            <input type="submit" value="로그아웃">
+        </form>
+        {% else %}
+        <a href="{% url 'accounts:login' %}">로그인</a>
+        <a href="{% url 'accounts:signup' %}">회원가입</a>
+        {% endif %}
+        
+
+    </nav>
     {% block body %}
     {% endblock %}
 </body>
