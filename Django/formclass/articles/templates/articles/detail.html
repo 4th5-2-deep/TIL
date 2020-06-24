@@ -5,6 +5,7 @@
 <h1>Article Detail</h1>
 
 <p>PK: {{ article.pk }}</p>
+<p>작성자: {{ article.user.username }}</p>
 <p>제목: {{ article.title }}</p>
 <p>내용: {{ article.content }}</p>
 
@@ -18,12 +19,13 @@
 <p>수정 시각: {{ article.updated_at }}</p>
 
 <a href="{% url 'articles:index' %}">Index</a>
+{% if user == article.user %}
 <a href="{% url 'articles:edit' article.pk %}">Edit</a>
-
 <form action="{% url 'articles:delete' article.pk %}" method="POST">
     {% csrf_token %}
     <input type="submit" value="Delete">
 </form>
+{% endif %}
 
 <!-- 댓글 목록 -->
 <h3>댓글 목록 ({{ article.comment_set.all.count }})</h3>
@@ -31,12 +33,14 @@
 <ul>
     {% for comment in article.comment_set.all %}
     <li>
-        {{ comment.content }} - {{ comment.created_at }}
+        {{ comment.user.username }}: {{ comment.content }} - {{ comment.created_at }}
+        {% if user == comment.user %}
         <a href="{% url 'articles:comments_edit' article.pk comment.pk %}">Edit</a>
         <form action="{% url 'articles:comments_delete' article.pk comment.pk %}" method="POST">
             {% csrf_token %}
             <input type="submit" value="Delete">
         </form>
+        {% endif %}
     </li>
     {% empty %}
     <li>
@@ -46,11 +50,13 @@
 </ul>
 
 <!-- 댓글 입력창 -->
+{% if user.is_authenticated %}
 <h3>댓글 입력</h3>
 <form action="{% url 'articles:comments_new' article.pk %}" method="POST">
     {% csrf_token %}
     {{ comment_form }}
     <input type="submit">
 </form>
+{% endif %}
 
 {% endblock %}

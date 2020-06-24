@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect
 from .models import Article, Comment
 from .forms import ArticleForm, CommentForm
+from django.contrib.auth.decorators import login_required
 
-# Create your views here.
+
 def index(request):
     articles = Article.objects.all()
     context = {
@@ -10,6 +11,10 @@ def index(request):
     }
     return render(request, 'articles/index.html', context)
 
+ # 로그인 검증
+ # o -> new 함수 실행
+ # x -> login 페이지로 보냄
+@login_required
 def new(request):
     if request.method == 'POST':
         # Database에 저장
@@ -22,7 +27,10 @@ def new(request):
         # 2-1. data 유효성 검사
         if form.is_valid():
             # (ModelForm) 2-2. Database에 저장
-            article = form.save()
+            article = form.save(commit=False)
+            article.user = request.user
+            # article.user_id = request.user.pk
+            article.save()
             # # 2-2. 검증된 data 꺼내오기
             # title = form.cleaned_data.get('title')
             # content = form.cleaned_data.get('content')
@@ -55,15 +63,25 @@ def detail(request, pk):
     return render(request, 'articles/detail.html', context)
 
 
+@login_required
 def delete(request, pk): # POST
     article = Article.objects.get(pk=pk)
+
+    if request.user != article.user:
+        return redirect('articles:detail', article.pk)
+
     if request.method == 'POST':
         article.delete()
     return redirect('articles:index')
 
+
+@login_required
 def edit(request, pk):
     # 1. Database에서 data 가져오기
     article = Article.objects.get(pk=pk)
+
+    if request.user != article.user:
+        return redirect('articles:detail', article.pk)
 
     if request.method == 'POST':
         # data 수정!
@@ -94,6 +112,7 @@ def edit(request, pk):
     return render(request, 'articles/edit.html', context)
 
 
+@login_required
 def comments_new(request, article_pk): # POST
     # 1. 요청이 POST인지 점검
     if request.method == 'POST':
@@ -106,25 +125,37 @@ def comments_new(request, article_pk): # POST
             comment = form.save(commit=False)
             # 4-1. article 정보 주입
             comment.article_id = article_pk
+            # 4-2. user 정보 넣기
+            comment.user = request.user
             comment.save()
     # 5. 생성된 댓글을 확인할 수 있는 곳으로 안내
     return redirect('articles:detail', article_pk)
 
 
+@login_required
 def comments_delete(request, article_pk, pk): # POST
     # 0. 요청이 POST인지 점검
-    if request.method == 'POST':
-        # 1. pk를 가지고 삭제하려는 data 꺼내오기
-        comment = Comment.objects.get(pk=pk)
+    # 1. pk를 가지고 삭제하려는 data 꺼내오기
+    comment = Comment.objects.get(pk=pk)
+
+    if request.user != comment.user:
+        return redirect('articles:detail', comment.article.pk)
+
+    if request.method == 'POST':    
         # 2. 삭제
         comment.delete()
     # 3. 삭제되었는지 확인 가능한 곳으로 안내
     return redirect('articles:detail', article_pk)
 
 
+@login_required
 def comments_edit(request, article_pk, pk): # GET, POST
     # Database에서 수정하려 하는 data 가져오기
     comment = Comment.objects.get(pk=pk)
+
+    if request.user != comment.user:
+        return redirect('articles:detail', comment.article.pk)
+    
     # 0. 요청의 종류가 POST인지 GET인지 점검
     if request.method == 'POST':
         # 실제로 수정!

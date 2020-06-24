@@ -1,8 +1,11 @@
 from django.db import models
 from imagekit.models import ProcessedImageField
 from imagekit.processors import Thumbnail
+from django.conf import settings
 
-# Create your models here.
+# User : Article = 1 : N
+# Article : Comment = 1 : N
+# User : Comment = 1 : N
 class Article(models.Model):
     title = models.CharField(max_length=10)
     content = models.TextField()
@@ -17,6 +20,7 @@ class Article(models.Model):
                             'quality': 90,
                         }
                     )
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE) # 'auth.User'
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -25,6 +29,7 @@ class Comment(models.Model):
     content = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     article = models.ForeignKey(Article, on_delete=models.CASCADE)
     # Article : Comment = 1 : N
     # (부모) : (자식)
