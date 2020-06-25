@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block body %}
+
+<h1>Profile</h1>
+
+<p>Username: {{ profile.user.username }}</p>
+<p>Nickname: {{ profile.nickname }}</p>
+{% if profile.image %}
+<p>
+    <img src="{{ profile.image.url }}" alt="profile image">
+</p>
+{% endif %}
+
+{% if user == profile.user %}
+<a href="{% url 'accounts:profile_edit' %}">Edit</a>
+<a href="{% url 'accounts:edit' %}">회원정보수정</a>
+{% endif %}
+
+
+{% endblock %}

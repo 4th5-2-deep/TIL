@@ -10,4 +10,9 @@
     <input type="submit" value="Update">
 </form>
 
+<form action="{% url 'accounts:delete' %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="회원탈퇴">
+</form>
+
 {% endblock %}

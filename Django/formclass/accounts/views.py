@@ -1,8 +1,11 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, PasswordChangeForm
 from django.contrib.auth import login as auth_login, logout as auth_logout
-from .forms import CustomUserChangeForm
+from .forms import CustomUserChangeForm, ProfileForm
 from django.contrib.auth import update_session_auth_hash
+from .models import Profile
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import get_user_model
 
 
 def signup(request):
@@ -14,10 +17,16 @@ def signup(request):
         # User 생성!
         # 1. POST로 넘어온 데이터 form에 넣기
         form = UserCreationForm(request.POST)
+        profile_form = ProfileForm(request.POST, request.FILES)
         # 2. form에서 유효성 검사
-        if form.is_valid():
+        if form.is_valid() and profile_form.is_valid():
             # 3. 유효하다면 database에 저장
             user = form.save()
+            profile = profile_form.save(commit=False)
+            profile.user = user
+            profile.save()
+            # Profile 생성
+            # Profile.objects.create(user=user)
             # 3-1. 저장했다면, 해당 User로 로그인!
             auth_login(request, user)
             # 4. 저장 결과 확인이 가능한 페이지로 안내
@@ -26,8 +35,11 @@ def signup(request):
     else:
         # User 생성 양식 보여주기
         form = UserCreationForm()
+        # Profile 생성 양식 보여주기
+        profile_form = ProfileForm()
     context = {
         'form': form,
+        'profile_form': profile_form,
     }
     return render(request, 'accounts/signup.html', context)
 
@@ -124,3 +136,51 @@ def password(request):
         'form': form,
     }
     return render(request, 'accounts/password.html', context)
+
+
+@login_required
+def profile_detail(request):
+    # 1:N - user.comment_set / comment.user
+    # 1:1 - user.profile / profile.user
+    profile = request.user.profile
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'accounts/profile_detail.html', context)
+
+
+@login_required
+def profile_edit(request):
+    # 1. 현재 로그인 된 user의 profile 가져오기
+    profile = request.user.profile
+
+    if request.method == 'POST':
+        # profile 업데이트
+        # 1. POST로 넘어온 데이터 form에 넣기
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        # 2. form에서 유효성 검사
+        if form.is_valid():
+            # 3. 검사를 통과하면 저장
+            form.save()
+            # 4. 결과 확인이 가능한 페이지로 안내
+            return redirect('accounts:profile_detail')
+    else:
+        # form에 profile 넣어서 양식 보여주기
+        form = ProfileForm(instance=profile)
+    context = {
+        'form': form,
+    }
+    return render(request, 'accounts/profile_edit.html', context)
+
+
+def profile(request, username):
+    # username <- User가 들고 있음
+    # User : Profile = 1 : 1
+    # 1. profile.user.username
+    profile = Profile.objects.get(user__username=username)
+    # 2. User에서 username으로 user 찾고, user.profile
+    # profile = get_user_model().objects.get(username=username).profile
+    context = {
+        'profile': profile,
+    }
+    return render(request, 'accounts/profile_detail.html', context)
