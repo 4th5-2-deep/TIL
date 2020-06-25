@@ -4,6 +4,15 @@
 
 <h1>Article Detail</h1>
 
+<form action="{% url 'articles:like' article.pk %}" method="POST">
+    {% csrf_token %}
+    <input type="submit" value="{% if user in article.like_users.all %}Unlike{% else %}Like{% endif %}">
+</form>
+
+<p>
+    {{ article.like_users.all|length }}명이 좋아합니다.
+</p>
+
 <p>PK: {{ article.pk }}</p>
 <p>작성자: {{ article.user.username }}</p>
 <p>제목: {{ article.title }}</p>

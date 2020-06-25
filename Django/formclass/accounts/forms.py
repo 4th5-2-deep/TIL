@@ -14,4 +14,4 @@ class CustomUserChangeForm(UserChangeForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ('nickname', 'image',)
+        fields = ('nickname', 'image', )

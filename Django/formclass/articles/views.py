@@ -176,3 +176,16 @@ def comments_edit(request, article_pk, pk): # GET, POST
         'form': form,
     }
     return render(request, 'articles/comments_edit.html', context)
+
+
+def like(request, pk):
+    user = request.user
+    article = Article.objects.get(pk=pk)
+
+    if request.method == 'POST':
+        if user in article.like_users.all():
+            article.like_users.remove(user)
+        else:
+            article.like_users.add(user)
+
+    return redirect('articles:detail', pk)
